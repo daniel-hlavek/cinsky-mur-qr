@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <title>Stiahnutie PDF + Kvíz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://burodestruct.net/sites/default/files/styles/bd_narrow/public/140jahre_meer_poster1.png?itok=2DfNU59L');
+      background-size: cover;
+      color: #ffffff;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 15px;
+    }
+
+    .top-bar button {
+      background-color: #ff0000;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+
+    .container {
+      text-align: center;
+      margin-top: 40px;
+      background: rgb(119, 7, 7);
+      padding: 30px;
+      border-radius: 40px;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    button.download {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 15px;
+      cursor: pointer;
+      background-color: #ff0000;
+      border: none;
+      border-radius: 5px;
+      color: #ffffff;
+    }
+
+    .quiz-popup, .reward-popup {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff0000;
+      padding: 30px 30px 20px 30px;
+      border-radius: 15px;
+      color: white;
+      z-index: 10;
+      max-width: 500px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.7);
+    }
+
+    .quiz-popup h2, .reward-popup h2 {
+      margin-top: 0;
+    }
+
+    .quiz-popup input[type="radio"] {
+      margin-right: 10px;
+    }
+
+    .quiz-buttons {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    .quiz-popup button, .reward-popup button {
+      background-color: #ff7b00;
+      padding: 8px 15px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #ccc;
+    }
+
+    .close-btn:hover {
+      color: rgb(236, 124, 124);
+    }
+
+    canvas {
+      display: block;
+      margin: 10px auto;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button onclick="openQuiz()">Quiz</button>
+  </div>
+
+  <div class="container">
+    <h1>ČÍNSKY MÚR</h1>
+    <img src="https://ipravda.sk/res/2023/09/05/thumbs/velky-cinsky-mur-clanokW.jpg" alt="Ukážkový obrázok">
+    <p>ČÍNSKY MÚR je starý systém opevnenia, ktorý sa ťahá naprieč severnou Čínou. Dnešný vzhľad má predovšetkým z výstavby z 15. až začiatku 17. storočia za dynastie Ming. Jeho účelom bolo chrániť Čínu pred mongolskými vpádmi. Podobné opevnenia proti vpádom kočovných kmeňov boli však budované už v dávnejších dobách.</p>
+    <a href="subor.pdf" download>
+      <button class="download">Klikni pre stiahnutie brožúrky</button>
+    </a>
+  </div>
+
+  <!-- Kvíz -->
+  <div class="quiz-popup" id="quiz">
+    <div class="close-btn" onclick="closeQuiz()">✖</div>
+    <h2>Quiz o ČÍNSKOM MÚRE</h2>
+    <form id="quizForm">
+      <p>1. Aky dlhý je ČÍNSKY MÚR?<br>
+        <input type="radio" name="q1" value="zle">21 169km<br>
+        <input type="radio" name="q1" value="spravne">21 196km
+      </p>
+      <p>2. kde je ČÍNSKY MÚR?<br>
+        <input type="radio" name="q2" value="spravne">v ČÍNE<br>
+        <input type="radio" name="q2" value="zle">v JAPONSKU
+      </p>
+      <p>3. je ČÍNSKY MÚR v UNECO?<br>
+        <input type="radio" name="q3" value="spravne">ano<br>
+        <input type="radio" name="q3" value="zle">nie
+      </p>
+      <p>4. ako sa volá ČÍNSKY vladca?<br>
+        <input type="radio" name="q4" value="zle">cár<br>
+        <input type="radio" name="q4" value="spravne">cisár
+      </p>
+      <p>5. ako sa povie po ČÍNSKY ČÍNSKY MÚR?<br>
+        <input type="radio" name="q5" value="zle">moderna:母妈 tradična:麵包<br>
+        <input type="radio" name="q5" value="spravne">moderna:长城 tradična:長城
+      </p>
+      <div class="quiz-buttons">
+        <button type="button" onclick="checkQuiz()">Hotovo</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Výsledok -->
+  <div class="quiz-popup" id="quiz-res">
+    <div class="close-btn" onclick="closeQuizRes()">✖</div>
+    <h2>Výsledok Kvízu</h2>
+    <p id="result"></p>
+    <div class="quiz-buttons" id="rewardContainer"></div>
+  </div>
+
+  <!-- Odmena - hra -->
+  <div class="reward-popup" id="reward-popup">
+    <div class="close-btn" onclick="closeReward()">✖</div>
+    <h2>Mini hra: Čínsky Ninja!</h2>
+    <p>Rezni 5 čínskych znakov kliknutím!</p>
+    <canvas id="ninjaCanvas" width="500" height="400"></canvas>
+    <p id="fruitScore">Zásahy: 0 / 5</p>
+  </div>
+
+  <script>
+    function openQuiz() {
+      document.getElementById('quiz').style.display = 'block';
+      closeQuizRes();
+    }
+
+    function closeQuiz() {
+      document.getElementById('quiz').style.display = 'none';
+      document.getElementById('quizForm').reset();
+    }
+
+    function closeQuizRes() {
+      document.getElementById('quiz-res').style.display = 'none';
+    }
+
+    function checkQuiz() {
+      const form = document.getElementById('quizForm');
+      const answers = form.querySelectorAll('input[type="radio"]:checked');
+      let score = 0;
+
+      answers.forEach(answer => {
+        if (answer.value === 'spravne') {
+          score++;
+        }
+      });
+
+      closeQuiz();
+      document.getElementById('quiz-res').style.display = 'block';
+      document.getElementById('result').innerText = 'Dosiahol si score: ' + score + ' z 5';
+
+      const rewardContainer = document.getElementById('rewardContainer');
+      rewardContainer.innerHTML = '';
+      if (score === 5) {
+        const btn = document.createElement('button');
+        btn.textContent = 'Získať odmenu';
+        btn.onclick = openReward;
+        rewardContainer.appendChild(btn);
+      }
+    }
+
+    // Odmena - hra
+    let fruitHits = 0;
+    let fruits = [];
+    let ctx, canvas;
+    let interval;
+
+    function openReward() {
+      fruitHits = 0;
+      fruits = [];
+      document.getElementById('fruitScore').innerText = 'Zásahy: 0 / 20';
+      document.getElementById('reward-popup').style.display = 'block';
+      canvas = document.getElementById('ninjaCanvas');
+      ctx = canvas.getContext('2d');
+      canvas.addEventListener('click', sliceFruit);
+      startFruitGame();
+    }
+
+    function closeReward() {
+      document.getElementById('reward-popup').style.display = 'none';
+      clearInterval(interval);
+      canvas.removeEventListener('click', sliceFruit);
+    }
+
+    function startFruitGame() {
+      interval = setInterval(() => {
+        updateFruits();
+        drawFruits();
+        if (Math.random() < 0.05) spawnFruit();
+      }, 50);
+    }
+
+    function spawnFruit() {
+      const characters = ["长", "城", "中", "国"];
+      const char = characters[Math.floor(Math.random() * characters.length)];
+      fruits.push({
+        x: Math.random() * 450 + 25,
+        y: 400,
+        vx: (Math.random() - 0.5) * 4,
+        vy: -10 - Math.random() * 5,
+        char: char
+      });
+    }
+
+    function updateFruits() {
+      fruits.forEach(fruit => {
+        fruit.x += fruit.vx;
+        fruit.y += fruit.vy;
+        fruit.vy += 0.5;
+      });
+      fruits = fruits.filter(fruit => fruit.y < 420);
+    }
+
+    function drawFruits() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "30px Arial";
+      ctx.fillStyle = "black";
+      fruits.forEach(fruit => {
+        ctx.fillText(fruit.char, fruit.x, fruit.y);
+      });
+    }
+
+    function sliceFruit(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      for (let i = 0; i < fruits.length; i++) {
+        let f = fruits[i];
+        if (x > f.x - 20 && x < f.x + 20 && y > f.y - 20 && y < f.y + 20) {
+          fruits.splice(i, 1);
+          fruitHits++;
+          document.getElementById('fruitScore').innerText = `Zásahy: ${fruitHits} / 20`;
+          if (fruitHits >= 20) {
+            alert("Skvelé! Si skutočný čínsky ninja! 🥋");
+            closeReward();
+          }
+          break;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
